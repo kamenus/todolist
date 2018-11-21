@@ -1,0 +1,21 @@
+.app {
+  text-align: center;
+}
+
+.appHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.searchPanel {
+  float: right;
+}
+
+button {
+  cursor: pointer;
+}
+
+.todoItemText {
+  cursor: pointer;
+}
