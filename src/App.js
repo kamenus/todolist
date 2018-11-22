@@ -3,10 +3,9 @@ import './App.css';
 
 import Input from './components/Input';
 import Card from './components/Card';
-// import moment from '../node_modules/moment/moment' ;
-import Search from './components/Search'
-import Filter from './components/Filter'
-import DateFilter from './components/DateFilter'
+import Search from './components/Search';
+import Filter from './components/Filter';
+import DateFilter from './components/DateFilter';
 
 
 class App extends Component {
@@ -22,7 +21,6 @@ class App extends Component {
     isCompletedFilter: false,
   }
 
-  // минус DRY
   minDateHandler = ({ target: {value: minDateValue} }) => 
     this.setState({ minDateValue })
    
@@ -192,7 +190,6 @@ class App extends Component {
               changeHandler={this.changeHandler}
               todoChanger={this.todoChanger}
             />
-            // Почему необходимо вернуть нулл?
           )}
         </div>
       </div>
