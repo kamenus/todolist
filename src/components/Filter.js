@@ -8,7 +8,7 @@ export default ({
     <button
       onClick={resetFilter}
     >
-      None
+      Reset
     </button>
     <button
       onClick={completedFilter}
