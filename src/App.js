@@ -3,9 +3,11 @@ import './App.css';
 
 import Input from './components/Input';
 import Card from './components/Card';
-import moment from '../node_modules/moment/moment' ;
+// import moment from '../node_modules/moment/moment' ;
 import Search from './components/Search'
 import Filter from './components/Filter'
+import DateFilter from './components/DateFilter'
+
 
 class App extends Component {
   state = {
@@ -13,8 +15,19 @@ class App extends Component {
     inputValue: '',
     changeValue: '',
     searchValue: '',
+    minDateValue: '',
+    maxDateValue: '',
     isDateFilter: false,
+    isSearchOn: false,
+    isCompletedFilter: false,
   }
+
+  // минус DRY
+  minDateHandler = ({ target: {value: minDateValue} }) => 
+    this.setState({ minDateValue })
+   
+  maxDateHandler = ({ target: {value: maxDateValue} }) => 
+    this.setState({ maxDateValue })  
 
   inputHandler = ({ target: {value: inputValue} }) => 
     this.setState({ inputValue })
@@ -25,24 +38,40 @@ class App extends Component {
   searchHandler = ({ target: {value: searchValue} }) => 
     this.setState({ searchValue })
 
+  compareNumeric = (a, b) => {
+      if (a.date < b.date) return 1;
+      if (a.date > b.date) return -1;
+    }
+    
   addTodoCard = () => {
-    const { todos, inputValue } = this.state;
-    let now = moment();
+    const { 
+      todos,
+      inputValue, 
+      isDateFilter, 
+      isSearchOn,
+      isCompletedFilter 
+    } = this.state;
+    // let now = moment();
 
     todos.push({
       text: inputValue,
       isCompleted: false,
       isOnChange: false,
-      date: now,
-      isVisible: true,
+      date: Math.floor(Math.random()*100) + 1,
+      isVisible: !isDateFilter&&!isSearchOn&&!isCompletedFilter,
+      isActive: true, 
     });
 
+    todos.sort(this.compareNumeric);
+
     this.setState({todos, inputValue: ''});
+    this.resetFilter();
   }
 
   toggleTodo = id => () => {
     const { todos } = this.state;
     todos[id].isCompleted = !todos[id].isCompleted; 
+    todos[id].isOnChange = false;
     this.setState({ todos });
   }
   
@@ -65,30 +94,67 @@ class App extends Component {
     todos.forEach( todo => 
       todo.isVisible = true
     );
-    this.setState({ todos: todos })
+    this.setState({ 
+      todos: todos,
+      isCompletedFilter: false,
+      isDateFilter: false,
+      isSearchOn: false,
+    })
   }
 
   completedFilter = () => {
     const { todos } = this.state;
     todos.forEach( todo => 
-      todo.isCompleted ?
+      todo.isCompleted&&todo.isVisible ?
         todo.isVisible = true :
         todo.isVisible = false );
-    this.setState({ todos: todos });
+    this.setState({ todos: todos, isCompletedFilter: true });
   }
 
   cardSeeker = () => {
-    const { todos, searchValue } = this.state;
+    const { todos, searchValue, isSearchOn } = this.state;
     todos.forEach( todo => 
       todo.text.includes(searchValue) ?
         todo.isVisible = true :
         todo.isVisible = false 
     );
-    this.setState({ todos: todos, searchValue: '' })
+    this.setState({ todos: todos, searchValue: '', isSearchOn: !isSearchOn })
+  }
+
+  dateCardsFilter = () => {
+    const { todos, minDateValue, maxDateValue } = this.state;
+
+    let min = parseInt(minDateValue);
+    let max = parseInt(maxDateValue);
+    todos.forEach( todo => {
+      let num = parseInt(todo.date);
+        (min <= num) && (num <= max) ?
+        todo.isVisible = true:
+        todo.isVisible = false 
+    });
+    this.setState({ todos: todos, minDateValue: '', maxDateValue: ''})
+  }
+
+  statusFixer = () => {
+    const { todos, isCompletedFilter, isDateFilter, isSearchOn } = this.state;
+
+    todos.forEach( todo => {
+      (isCompletedFilter&&todo.isCompleted || todo.isVisible&&(isSearchOn || isDateFilter)) ?
+        todo.isActive = true :
+        todo.isActive = false
+    })
+    this.setState({ todos: todos })
   }
 
   render() {
-    const { todos, inputValue, searchValue, changeValue } = this.state;
+    const { 
+      todos,
+      inputValue, 
+      searchValue, 
+      changeValue,
+      minDateValue,
+      maxDateValue 
+    } = this.state;
     
     return (
       <div className="app">
@@ -107,20 +173,27 @@ class App extends Component {
             resetFilter={this.resetFilter}
             completedFilter={this.completedFilter}
           />
+          <DateFilter 
+            minDateValue={minDateValue}
+            maxDateValue={maxDateValue}
+            minDateHandler={this.minDateHandler}
+            maxDateHandler={this.maxDateHandler}
+            dateCardsFilter={this.dateCardsFilter}
+          />
         </div>  
         <div className="todoList">
           {todos.map( (card, cardId) => 
-                <Card  
-                  toggleTodo={this.toggleTodo} 
-                  id={cardId}
-                  {...card}
-                  todoStatusOnChange={this.todoStatusOnChange}
-                  changeValue={changeValue}
-                  changeHandler={this.changeHandler}
-                  todoChanger={this.todoChanger}
-                />
-                // Почему необходимо вернуть нулл?
-              )}
+            <Card  
+              toggleTodo={this.toggleTodo} 
+              id={cardId}
+              {...card}
+              todoStatusOnChange={this.todoStatusOnChange}
+              changeValue={changeValue}
+              changeHandler={this.changeHandler}
+              todoChanger={this.todoChanger}
+            />
+            // Почему необходимо вернуть нулл?
+          )}
         </div>
       </div>
     );

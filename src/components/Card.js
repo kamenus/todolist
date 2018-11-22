@@ -16,7 +16,7 @@ export default ({
   if (isVisible) {
     return(
       <div className="todoItem">
-        <p 
+        <span 
           className='todoItemText'
           style={{
             textDecoration: 
@@ -27,7 +27,7 @@ export default ({
           onClick={toggleTodo(id)}
         >
           {text}
-        </p>
+        </span>
         <p
           style={{
             display:
@@ -36,7 +36,7 @@ export default ({
                 ''
           }}
         >
-          {date.format('dddd, MMMM DD YYYY, h:mm:ss')}
+          {date} {'  '}Число несуществующего месяца){'  '}
           <button
             onClick={todoStatusOnChange(id)}
           >
